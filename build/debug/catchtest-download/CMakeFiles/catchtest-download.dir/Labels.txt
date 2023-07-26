@@ -1,0 +1,14 @@
+# Target labels
+ catchtest-download
+# Source files and their labels
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/CMakeFiles/catchtest-download
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/CMakeFiles/catchtest-download.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/CMakeFiles/catchtest-download-complete.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-build.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-configure.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-download.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-install.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-mkdir.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-patch_disconnected.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-test.rule
+/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-update_disconnected.rule

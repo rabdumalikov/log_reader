@@ -35,19 +35,19 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif()
 
-add_executable(matcher_test tests/matcher_tests.cpp match_rules.cpp)
+add_executable(matcher_test tests/matcher_tests.cpp src/match_rules.cpp)
 target_include_directories(matcher_test PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(matcher_test PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
-add_executable(log_reader_test tests/log_reader_tests.cpp match_rules.cpp matcher.cpp log_reader.cpp)
+add_executable(log_reader_test tests/log_reader_tests.cpp src/match_rules.cpp src/matcher.cpp src/log_reader.cpp)
 target_include_directories(log_reader_test PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(log_reader_test PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
-add_executable(main main.cpp log_reader.cpp matcher.cpp match_rules.cpp)
+add_executable(main src/main.cpp src/log_reader.cpp src/matcher.cpp src/match_rules.cpp)
 target_include_directories(main PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(main PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
-add_executable(operator_plus example/operator_plus.cpp log_reader.cpp matcher.cpp match_rules.cpp)
+add_executable(operator_plus example/operator_plus.cpp src/log_reader.cpp src/matcher.cpp src/match_rules.cpp)
 target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
@@ -55,16 +55,3 @@ target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${catchtest_SO
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
     add_compile_options( -Winline )
 endif()
-
-#function(build_source_file base_name )
-#  message(STATUS ${base_name})
-#  add_executable(${base_name} ${base_name}.cpp)
-#  target_include_directories(${base_name} PUBLIC $<BUILD_INTERFACE:${eswitch_SOURCE_DIR}/include/eswitch>)
-#endfunction(build_source_file)
-
-
-# list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/)
- #include (gcovr)
-
- #add_subdirectory("examples")
- #add_subdirectory("doc")

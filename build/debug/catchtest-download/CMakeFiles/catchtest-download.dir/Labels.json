@@ -1,0 +1,46 @@
+{
+	"sources" : 
+	[
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/CMakeFiles/catchtest-download"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/CMakeFiles/catchtest-download.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/CMakeFiles/catchtest-download-complete.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-build.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-configure.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-download.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-install.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-mkdir.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-patch_disconnected.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-test.rule"
+		},
+		{
+			"file" : "/Users/v/Documents/C++ practice/submition/build/debug/catchtest-download/catchtest-download-prefix/src/catchtest-download-stamp/catchtest-download-update_disconnected.rule"
+		}
+	],
+	"target" : 
+	{
+		"labels" : 
+		[
+			"catchtest-download"
+		],
+		"name" : "catchtest-download"
+	}
+}

@@ -1,7 +1,7 @@
 #include <iostream>
 
-#include "match_rules.hpp"
-#include "matcher.hpp"
+#include "src/match_rules.hpp"
+#include "src/matcher.hpp"
 
 // '+' rule to match any one or more characters
 struct PlusOperator
