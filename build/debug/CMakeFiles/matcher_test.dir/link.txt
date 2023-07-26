@@ -1,1 +1,0 @@
-/usr/local/opt/llvm/bin/clang++ -g -isysroot /Library/Developer/CommandLineTools/SDKs/MacOSX13.3.sdk -Wl,-search_paths_first -Wl,-headerpad_max_install_names  -stdlib=libc++ -lc++abi CMakeFiles/matcher_test.dir/tests/matcher_tests.cpp.o CMakeFiles/matcher_test.dir/src/match_rules.cpp.o -o matcher_test 

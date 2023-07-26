@@ -1,8 +1,0 @@
-/Users/v/Documents/C++ practice/submition/build/debug/CMakeFiles/matcher_test.dir
-/Users/v/Documents/C++ practice/submition/build/debug/CMakeFiles/log_reader_test.dir
-/Users/v/Documents/C++ practice/submition/build/debug/CMakeFiles/main.dir
-/Users/v/Documents/C++ practice/submition/build/debug/CMakeFiles/operator_plus.dir
-/Users/v/Documents/C++ practice/submition/build/debug/CMakeFiles/edit_cache.dir
-/Users/v/Documents/C++ practice/submition/build/debug/CMakeFiles/rebuild_cache.dir
-/Users/v/Documents/C++ practice/submition/build/debug/catchtest-build/CMakeFiles/edit_cache.dir
-/Users/v/Documents/C++ practice/submition/build/debug/catchtest-build/CMakeFiles/rebuild_cache.dir
