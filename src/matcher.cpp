@@ -79,7 +79,7 @@ bool match_impl(const std::string & pattern, const std::string & line, const Mat
         // Indicate that we reached final state
         if( iter == std::end(transition_map) )
         {
-            std::cout << "INFO: Reached final state" << std::endl;
+            //std::cout << "INFO: Reached final state" << std::endl;
             break;
         }
         
@@ -110,7 +110,7 @@ bool match_impl(const std::string & pattern, const std::string & line, const Mat
             // Indicate that we reached final state
             if( new_state_iter == std::end(transition_map) )
             {
-                std::cout << "INFO: Reached final state from new_state" << std::endl;
+                //std::cout << "INFO: Reached final state from new_state" << std::endl;
                 break;
             }
 
