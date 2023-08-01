@@ -142,17 +142,13 @@ bool match_impl_NFA(const std::string & pattern, const std::string & line, const
     /// std::set because states to explore should be unique.
     std::set< state_t > current_states{ 0 };
 
-    for( const char input : line )
-    {
-        current_states = get_next_states(input, current_states, state_machine.transitions);
-
-        if( is_string_accepted( state_machine.accepting_states, current_states ))
+    return std::any_of( std::begin(line), std::end(line),
+        [ & ]( const char input ) mutable
         {
-            return true;
-        }
-    }
+            current_states = get_next_states(input, current_states, state_machine.transitions);
 
-    return is_string_accepted( state_machine.accepting_states, current_states );
+            return is_string_accepted( state_machine.accepting_states, current_states );
+        } );
 }
 
 // The copy of 'pattern' here is intentional

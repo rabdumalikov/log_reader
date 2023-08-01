@@ -35,7 +35,7 @@ uint64_t Rules::ImplDetails::CountNumberOfOperators( const string & pattern ) co
 
 Rules::Rules()
 {
-    AddNewRule(Rule{ '?', 1, 
+    AddNewRule( Rule{ '?', 1, 
         [](const char input, const PatternStates& states ) 
         {  
             //std::cout << "Rule: ?" << std::endl;
@@ -43,13 +43,13 @@ Rules::Rules()
             return std::vector{Event::Move};
         } } );
 
-    AddNewRule(Rule{ '*', 0, 
+    AddNewRule( Rule{ '*', 0, 
         [](const char input, const PatternStates& states ) 
         {
             return std::vector{Event::Stay};
         } } );
 
-    AddNewRule(Rule{ '@', 1, 
+    AddNewRule( Rule{ '@', 1, 
         [](const char input, const PatternStates& states) 
         {
             //std::cout << "Rule: @" << " states.pattern_symbol=" << states.pattern_symbol << std::endl;
@@ -108,7 +108,7 @@ const Rules& Rules::GetInstance()
 
 RulesWithPlus::RulesWithPlus()
 {
-    AddNewRule(Rule{ '+', 1, 
+    AddNewRule( Rule{ '+', 1, 
         [](const char input, const PatternStates& states ) 
         {
             return std::vector{Event::Stay, Event::Move};
