@@ -62,7 +62,7 @@ static StateMachine create_state_machine( const std::string & pattern, const Imp
         
         std::vector transitions{ StateMachine::Transition(ch, current_state, details.GetTransitionFor(ch) ) };
 
-        if( details.MinimumNumberExpectedCharacters( ch ) == 0 )
+        if( details.MinMatchRequiredCharacters( ch ) == 0 )
         {
             if( const auto next_char = get_next_char(pattern, i); next_char )
             {

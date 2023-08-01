@@ -5,23 +5,16 @@
 
 using namespace std;
 
-char Rules::ImplDetails::ToRule(const char ch) const {
-
-    const auto iter = parsing_rules.find(ch);
-    if( iter != std::end(parsing_rules) )
-    {
-        return ch;
-    }
-    
-    // this represent non-operator charactors
-    return '@';
+Rules::ImplDetails::ImplDetails( Rule && default_rule )
+: default_rule( std::move(default_rule) )
+{
 }
 
-uint64_t Rules::ImplDetails::MinimumNumberExpectedCharacters( const char ch ) const 
+uint64_t Rules::ImplDetails::MinMatchRequiredCharacters( const char ch ) const 
 {
-    const auto iter = parsing_rules.find( ToRule( ch ) );
+    const auto iter = parsing_rules.find( ch );
 
-    return iter == std::end(parsing_rules) ? 0 : iter->second.min_expected_matched_characters;
+    return iter == std::end(parsing_rules) ? 1 : iter->second.min_expected_characters_to_match;
 }
 
 uint64_t Rules::ImplDetails::CountNumberOfOperators( const string & pattern ) const {
@@ -34,12 +27,17 @@ uint64_t Rules::ImplDetails::CountNumberOfOperators( const string & pattern ) co
 }
 
 Rules::Rules()
+: details( Rule{ '@', 1, 
+    [](const char input, const PatternStates& states) 
+    {
+        return input == states.pattern_symbol  ?
+            std::vector{Event::Move} :
+            std::vector{Event::Halt};
+    } } )
 {
     AddNewRule( Rule{ '?', 1, 
         [](const char input, const PatternStates& states ) 
         {  
-            //std::cout << "Rule: ?" << std::endl;
-
             return std::vector{Event::Move};
         } } );
 
@@ -47,19 +45,6 @@ Rules::Rules()
         [](const char input, const PatternStates& states ) 
         {
             return std::vector{Event::Stay};
-        } } );
-
-    AddNewRule( Rule{ '@', 1, 
-        [](const char input, const PatternStates& states) 
-        {
-            //std::cout << "Rule: @" << " states.pattern_symbol=" << states.pattern_symbol << std::endl;
-            
-            if( input == states.pattern_symbol )
-            {
-                return std::vector{Event::Move};
-            }
-            
-            return std::vector{Event::Halt};
         } } );
 }
 
@@ -86,18 +71,16 @@ void Rules::DeleteRule( const char symbol )
 }
 
 Rule::transition_t Rules::ImplDetails::GetTransitionFor( const char ch ) const
-{
-    const auto rule_key = ToRule(ch);
+{    
+    auto iter = parsing_rules.find( ch );
     
-    // Entry always must exists otherwise something is wrong
-    auto iter = parsing_rules.find(rule_key);
-    
-    if( iter == std::end(parsing_rules) )
+    if( iter != std::end(parsing_rules) )
     {
-        throw std::runtime_error("Rule for '" + std::string(1, ch) + "' not found!");
+        return iter->second.func;
     }
 
-    return iter->second.func;
+    // default rule
+    return default_rule.func;
 }
 
 const Rules& Rules::GetInstance()

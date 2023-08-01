@@ -18,13 +18,15 @@ class Rules {
         static const Rules& GetInstance();
 
         struct ImplDetails 
-        {            
-            char ToRule( const char ch ) const;
-            uint64_t MinimumNumberExpectedCharacters( const char ch ) const;
+        {           
+            explicit ImplDetails( Rule && default_rule );
+
+            uint64_t MinMatchRequiredCharacters( const char ch ) const;
             uint64_t CountNumberOfOperators( const std::string & pattern ) const;        
             Rule::transition_t GetTransitionFor( const char ch ) const;
         
             std::map< char, Rule > parsing_rules;
+            const Rule default_rule;
         };
 
     private:

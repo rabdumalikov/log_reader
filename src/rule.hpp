@@ -35,7 +35,7 @@ struct Rule
     For example, '*' match at least zero characters, '?' match at least one character,
     '.' would match at least two characters, and regular characters would match at least one character.
     ***/
-    uint32_t min_expected_matched_characters;
+    uint32_t min_expected_characters_to_match;
 
     /***
     This function where based you specific logic we either move 

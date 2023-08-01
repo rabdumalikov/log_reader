@@ -12,7 +12,13 @@ using namespace std;
 
 static auto CreateRules()
 {
-    ImplDetails details;
+    ImplDetails details( Rule{ '@', 1, 
+        [](const char input, const PatternStates& states) 
+        {
+            return input == states.pattern_symbol  ?
+                std::vector{Event::Move} :
+                std::vector{Event::Halt};
+        } } );
 
     details.parsing_rules['?'] = Rule{ '?', 1, 
         [](const char input, const PatternStates& states ) 
@@ -24,14 +30,6 @@ static auto CreateRules()
         [](const char input, const PatternStates& states ) 
         {
             return std::vector{Event::Stay};
-        } };
-
-    details.parsing_rules['@'] = Rule{ '@', 1, 
-        [](const char input, const PatternStates& states) 
-        {
-            return input == states.pattern_symbol  ?
-                std::vector{Event::Move} :
-                std::vector{Event::Halt};
         } };
 
     details.parsing_rules['+'] = Rule{ '+', 1, 
@@ -87,16 +85,6 @@ TEST_CASE( "get_next_states", "" )
     REQUIRE( *std::begin(next_states) == 0 );
 }
 
-TEST_CASE( "ToRule", "" ) 
-{
-    const auto rules = CreateRules();
-    REQUIRE( rules.ToRule('*') == '*' );
-    REQUIRE( rules.ToRule('+') == '+' );
-    REQUIRE( rules.ToRule('?') == '?' );
-    REQUIRE( rules.ToRule('a') == '@' );
-    REQUIRE( rules.ToRule(' ') == '@' );
-}
-
 TEST_CASE( "CountNumberOfOperators", "" ) 
 {
     const auto rules = CreateRules();
@@ -109,12 +97,15 @@ TEST_CASE( "CountNumberOfOperators", "" )
     REQUIRE( rules.CountNumberOfOperators("*?+est") == 3 );
 }
 
-TEST_CASE( "MinimumNumberExpectedCharacters", "" ) 
+TEST_CASE( "MinMatchRequiredCharacters", "" ) 
 {
     const auto rules = CreateRules();
-    REQUIRE( rules.MinimumNumberExpectedCharacters('*') == 0 );
-    REQUIRE( rules.MinimumNumberExpectedCharacters('+') == 1 );
-    REQUIRE( rules.MinimumNumberExpectedCharacters('?') == 1 );
+    REQUIRE( rules.MinMatchRequiredCharacters('*') == 0 );
+    REQUIRE( rules.MinMatchRequiredCharacters('+') == 1 );
+    REQUIRE( rules.MinMatchRequiredCharacters('?') == 1 );
+    
+    for( int i = 'a'; i <= 'z'; ++i )
+        REQUIRE( rules.MinMatchRequiredCharacters(static_cast<char>(i)) == 1 );
 }
 
 TEST_CASE( "pattern_normalization", "" ) 
