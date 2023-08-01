@@ -1,32 +1,37 @@
+#include <set>
 #include <map>
 #include <vector>
 #include <iostream>
 #include <algorithm>
+
+#include "rule.hpp"
 #include "matcher.hpp"
 
-using state_t = MatchRules::state_t;
-using State = MatchRules::State;
-using PatternStates = MatchRules::PatternStates;
-using ImplDetails = MatchRules::ImplDetails;
+using ImplDetails = Rules::ImplDetails;
 
-struct Rule {
-    
-    Rule( const char filter, const state_t current_state, 
-        std::function<std::vector<State>(const char, const PatternStates&)> && func )
-    : states{filter, current_state}
-    , func(std::move(func))
-    {}
+struct StateMachine
+{
+    struct Transition {    
+        Transition( const char pattern_symbol, const state_t current_state, 
+            std::function<std::vector<Event>(const char, const PatternStates&)> && func )
+        : states{pattern_symbol, current_state}
+        , func(std::move(func))
+        {}
 
-    auto operator()(const char input) const
-    {
-        return func(input, this->states);
-    }
+        auto operator()(const char input) const
+        {
+            return func(input, this->states);
+        }
 
-    PatternStates states;
+        PatternStates states;
 
-    private:
+        private:
 
-    std::function<std::vector<State>(const char, const PatternStates&)> func;
+        std::function<std::vector<Event>(const char, const PatternStates&)> func;
+    };
+
+    std::vector< std::vector<Transition> > transitions;
+    std::vector< state_t > accepting_states;
 };
 
 static std::optional<char> get_next_char( const std::string & pattern, size_t index )
@@ -41,31 +46,12 @@ static std::optional<char> get_next_char( const std::string & pattern, size_t in
     return pattern[next_index];
 }
 
-template< typename T >
-static bool is_string_accepted( const T & accept_states, const T & current_states )
-{
-    const auto iter = std::find_if( std::begin(accept_states), std::end(accept_states), [&current_states]( const auto accept_state ) 
-    {
-        const auto iter = std::find( std::begin(current_states), std::end(current_states), accept_state );
-
-        return iter != std::end(current_states);
-    } );
-
-    return iter != std::end(accept_states);
-}
-
-struct StateMachine
-{
-    std::vector< std::vector<Rule> > transitions;
-    std::vector< state_t > accepting_states;
-};
-
 static StateMachine create_state_machine( const std::string & pattern, const ImplDetails & details )
 {
     const size_t max_possible_state = pattern.size();
 
     auto state_machine = StateMachine{ 
-        std::vector<std::vector<Rule> >( max_possible_state ), 
+        std::vector<std::vector<StateMachine::Transition> >( max_possible_state ), 
         std::vector< state_t >{ max_possible_state } 
     };
         
@@ -74,7 +60,7 @@ static StateMachine create_state_machine( const std::string & pattern, const Imp
         const state_t current_state = i;
         const char ch = pattern[i];
         
-        std::vector<Rule> transitions{ Rule(ch, current_state, details.GetTransitionFor(ch) ) };
+        std::vector transitions{ StateMachine::Transition(ch, current_state, details.GetTransitionFor(ch) ) };
 
         if( details.MinimumNumberExpectedCharacters( ch ) == 0 )
         {
@@ -85,7 +71,7 @@ static StateMachine create_state_machine( const std::string & pattern, const Imp
                 /// epsilon transition
                 auto next_rule = details.GetTransitionFor(next_ch);
 
-                transitions.push_back( Rule(next_ch, current_state+1, std::move(next_rule) ) );
+                transitions.push_back( StateMachine::Transition(next_ch, current_state+1, std::move(next_rule) ) );
             }
             else 
             {
@@ -99,33 +85,33 @@ static StateMachine create_state_machine( const std::string & pattern, const Imp
     return state_machine;
 }
 
-static std::vector< state_t > get_next_states( const char input, 
-    const std::vector< state_t > & current_states, const std::vector<std::vector<Rule> > & transitions )
+static std::set< state_t > get_next_states( const char input, 
+    const std::set< state_t > & current_states, const std::vector<std::vector<StateMachine::Transition> > & transitions )
 {
     // We must keep start state for false positive cases.
-    // For example: let say we want to use pattent=ning* and input=cunning.
-    // Matchiing first 'n' in the input is false positive. Because
-    // after that match we move to the next state which is 'i', and the whole
+    // For example: let say we want to use pattent="ning*" and input="cunning".
+    // Matching first 'n' in the input is false positive. Because
+    // after that match we move to the next state which has only transition 'i', and the whole
     // match would fail. Thus we always need to have start state, and this
     // branch carry on again for the second 'n' in the input, and matching
     // would be successful.
-    std::vector< state_t > next_states{ 0 };
+    std::set< state_t > next_states{ 0 };
 
     for( const state_t current_state : current_states )
     {
         for( const auto & transition : transitions[current_state] )
         {                
-            for( const State new_state : transition(input) )
+            for( const Event new_event : transition(input) )
             {
-                switch(new_state)
+                switch(new_event)
                 {
-                    case MatchRules::Current: 
-                        next_states.push_back(transition.states.current_state); 
+                    case Event::Stay: 
+                        next_states.insert(transition.states.current_state); 
                         break;
-                    case MatchRules::Next: 
-                        next_states.push_back(transition.states.current_state + 1); 
+                    case Event::Move: 
+                        next_states.insert(transition.states.current_state + 1); 
                         break;                            
-                    case MatchRules::DiedOut:
+                    case Event::Halt:
                     default: break;
                 }
             }
@@ -135,18 +121,30 @@ static std::vector< state_t > get_next_states( const char input,
     return next_states;
 }
 
-bool match_impl_NFA(const std::string & pattern, const std::string & line, const MatchRules & rules)
+template< typename T1, typename T2 >
+static bool is_string_accepted( const T1 & accept_states, const T2 & current_states )
+{
+    const auto iter = std::find_if( std::begin(accept_states), std::end(accept_states), 
+        [&current_states]( const auto accept_state ) 
+        {
+            const auto iter = std::find( std::begin(current_states), std::end(current_states), accept_state );
+
+            return iter != std::end(current_states);
+        } );
+
+    return iter != std::end(accept_states);
+}
+
+bool match_impl_NFA(const std::string & pattern, const std::string & line, const Rules & rules)
 {
     const auto state_machine = create_state_machine( pattern, rules.details );
 
-    std::vector< state_t > current_states{ 0 };
+    /// std::set because states to explore should be unique.
+    std::set< state_t > current_states{ 0 };
 
     for( const char input : line )
     {
         current_states = get_next_states(input, current_states, state_machine.transitions);
-
-        std::sort( std::begin(current_states), std::end(current_states) );
-        current_states.erase( std::unique(  std::begin(current_states), std::end(current_states) ), std::end(current_states) );
 
         if( is_string_accepted( state_machine.accepting_states, current_states ))
         {
@@ -160,10 +158,12 @@ bool match_impl_NFA(const std::string & pattern, const std::string & line, const
 // The copy of 'pattern' here is intentional
 static std::string normalize_pattern( std::string pattern ) 
 {
-    const static std::vector<std::pair<std::string, std::string>> normalization_rules = {
-        {"**", "*"},
-        {"+*", "+"},
-        {"*+", "+"}
+    using namespace std;
+
+    const static auto normalization_rules = {
+        pair{"**"s, "*"s},
+        pair{"+*"s, "+"s},
+        pair{"*+"s, "+"s}
     };
 
     for( const auto & [key, value] : normalization_rules )
@@ -176,12 +176,12 @@ static std::string normalize_pattern( std::string pattern )
     return std::move( pattern );
 }
 
-bool match(const std::string & pattern, const std::string & line, const MatchRules & rules)
+bool match(const std::string & pattern, const std::string & line, const Rules & rules)
 {
     if( rules.details.CountNumberOfOperators(pattern) == 0 )
     {
         return pattern == line;
     }
 
-    return match_impl_NFA(normalize_pattern( pattern ), line, rules );
+    return match_impl_NFA( normalize_pattern( pattern ), line, rules );
 }

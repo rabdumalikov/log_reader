@@ -10,7 +10,7 @@ Application for filtering out log files.
   
 - `src/log_reader.hpp` - LogReader implementation
 - `src/matching.hpp` - engine that search for matches using provided set of rules like `*`, and `?`.
-- `src/match_rules.hpp` - abstraction for controlling and introducing new rules
+- `src/rules.hpp` - abstraction for controlling and introducing new rules
 - `src/main.cpp` - application that accept two arguments and filter out logs based on provided pattern.
    
 # Unit-Tests:

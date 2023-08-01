@@ -1,48 +1,124 @@
+// including 'cpp' instead of 'hpp' intentional, since I want to get
+// access to functions that only accessable inside 'matcher' translation unit (internal linkage).
+// Hiding those function was done to avoid contamination of external reference of object file.
 #include "src/matcher.cpp"
+
+#include <iostream>
 
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
 #include "catch2/catch.hpp"
 
 using namespace std;
 
-// TEST_CASE( "ToRule", "" ) 
-// {
-//     MatchRulesWithPlusOperator rules;
-//     REQUIRE( ToRule('*', rules) == '*' );
-//     REQUIRE( ToRule('+', rules) == '+' );
-//     REQUIRE( ToRule('?', rules) == '?' );
-//     REQUIRE( ToRule('a', rules) == '@' );
-//     REQUIRE( ToRule(' ', rules) == '@' );
-// }
+static auto CreateRules()
+{
+    ImplDetails details;
 
-// TEST_CASE( "CountMinimumNumberExpectedCharacters", "" ) 
-// {
-//     MatchRulesWithPlusOperator rules;
-//     REQUIRE( CountMinimumNumberExpectedCharacters("*t", rules) == 1 );
-//     REQUIRE( CountMinimumNumberExpectedCharacters("+t", rules) == 2 );
-//     REQUIRE( CountMinimumNumberExpectedCharacters("?t", rules) == 2 );
-//     REQUIRE( CountMinimumNumberExpectedCharacters("*?test", rules) == 5 );
-//     REQUIRE( CountMinimumNumberExpectedCharacters("+?test", rules) == 6 );
-//     REQUIRE( CountMinimumNumberExpectedCharacters("??test", rules) == 6 );
-//     REQUIRE( CountMinimumNumberExpectedCharacters("*?+est", rules) == 5 );
-// }
+    details.parsing_rules['?'] = Rule{ '?', 1, 
+        [](const char input, const PatternStates& states ) 
+        {  
+            return std::vector{Event::Move};
+        } };
 
-// TEST_CASE( "CountNumberOfOperators", "" ) 
-// {
-//     MatchRulesWithPlusOperator rules;
-//     REQUIRE( CountNumberOfOperators("*t", rules) == 1 );
-//     REQUIRE( CountNumberOfOperators("+t", rules) == 1 );
-//     REQUIRE( CountNumberOfOperators("?t", rules) == 1 );
-//     REQUIRE( CountNumberOfOperators("*?test", rules) == 2 );
-//     REQUIRE( CountNumberOfOperators("+?test", rules) == 2 );
-//     REQUIRE( CountNumberOfOperators("??test", rules) == 2 );
-//     REQUIRE( CountNumberOfOperators("*?+est", rules) == 3 );
-// }
+    details.parsing_rules['*'] = Rule{ '*', 0, 
+        [](const char input, const PatternStates& states ) 
+        {
+            return std::vector{Event::Stay};
+        } };
+
+    details.parsing_rules['@'] = Rule{ '@', 1, 
+        [](const char input, const PatternStates& states) 
+        {
+            return input == states.pattern_symbol  ?
+                std::vector{Event::Move} :
+                std::vector{Event::Halt};
+        } };
+
+    details.parsing_rules['+'] = Rule{ '+', 1, 
+        [](const char input, const PatternStates& states ) 
+        {
+            return std::vector{Event::Stay, Event::Move};
+        } };
+
+    return details;
+}
+
+TEST_CASE( "get_next_char", "" ) 
+{
+    SECTION("normal_string")
+    {
+        string str{"Hello"};
+        
+        for( size_t i = 0; i < str.size() - 1; ++i )
+        {
+            const auto res = get_next_char( str, i );
+
+            REQUIRE( res != std::nullopt );
+            REQUIRE( *res == str[i+1] );
+        }
+
+        REQUIRE_FALSE( get_next_char( str, str.size() ) != std::nullopt );
+    }
+
+    SECTION("empty_string")
+    {
+        string str{""};
+        
+        REQUIRE_FALSE( get_next_char( str, str.size() ) != std::nullopt );
+    }
+}
+
+TEST_CASE( "is_string_accepted", "" )
+{
+    REQUIRE( is_string_accepted( std::vector{5}, std::vector{1,2,3,4,5}) );
+    REQUIRE( is_string_accepted( std::vector{5}, std::vector{1,2,3,4,5,6,7}) );
+    REQUIRE( is_string_accepted( std::vector{5,6}, std::vector{1,2,3,4,5,6,7}) );
+
+    REQUIRE_FALSE( is_string_accepted( std::vector<state_t>{}, std::vector{1,2,3,4,5,6,7}) );
+    REQUIRE_FALSE( is_string_accepted( std::vector{8}, std::vector{1,2,3,4,5,6,7}) );
+    REQUIRE_FALSE( is_string_accepted( std::vector{1,2}, std::vector{3,4,5,6,7}) );
+}
+
+TEST_CASE( "get_next_states", "" )
+{
+    const auto next_states = get_next_states( 'i', std::set<state_t>{}, std::vector<std::vector<StateMachine::Transition> >{} );
+    
+    REQUIRE( next_states.size() == 1 );
+    REQUIRE( *std::begin(next_states) == 0 );
+}
+
+TEST_CASE( "ToRule", "" ) 
+{
+    const auto rules = CreateRules();
+    REQUIRE( rules.ToRule('*') == '*' );
+    REQUIRE( rules.ToRule('+') == '+' );
+    REQUIRE( rules.ToRule('?') == '?' );
+    REQUIRE( rules.ToRule('a') == '@' );
+    REQUIRE( rules.ToRule(' ') == '@' );
+}
+
+TEST_CASE( "CountNumberOfOperators", "" ) 
+{
+    const auto rules = CreateRules();
+    REQUIRE( rules.CountNumberOfOperators("*t") == 1 );
+    REQUIRE( rules.CountNumberOfOperators("+t") == 1 );
+    REQUIRE( rules.CountNumberOfOperators("?t") == 1 );
+    REQUIRE( rules.CountNumberOfOperators("*?test") == 2 );
+    REQUIRE( rules.CountNumberOfOperators("+?test") == 2 );
+    REQUIRE( rules.CountNumberOfOperators("??test") == 2 );
+    REQUIRE( rules.CountNumberOfOperators("*?+est") == 3 );
+}
+
+TEST_CASE( "MinimumNumberExpectedCharacters", "" ) 
+{
+    const auto rules = CreateRules();
+    REQUIRE( rules.MinimumNumberExpectedCharacters('*') == 0 );
+    REQUIRE( rules.MinimumNumberExpectedCharacters('+') == 1 );
+    REQUIRE( rules.MinimumNumberExpectedCharacters('?') == 1 );
+}
 
 TEST_CASE( "pattern_normalization", "" ) 
 {
-    //REQUIRE( normalize_pattern("*?test") == "?*test" );
-    //REQUIRE( normalize_pattern("*?*?test") == "??*test" );
     REQUIRE( normalize_pattern("******test") == "*test" );
     REQUIRE( normalize_pattern("test******") == "test*" );
     REQUIRE( normalize_pattern("test*+") == "test+" );

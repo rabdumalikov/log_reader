@@ -5,7 +5,6 @@
 
 using namespace std;
 
-
 TEST_CASE( "log_reader", "" )
 {
     SECTION("Open") {
@@ -164,7 +163,128 @@ TEST_CASE( "log_reader", "" )
             REQUIRE_FALSE( reader.GetNextLine(buffer.data(), buffer.size()) );
             REQUIRE( std::string(buffer.data()) == "" );
         }
+    }
 
+    SECTION("GetNextLine") 
+    {
+        LogReader reader1; 
+        REQUIRE( reader1.Open("../../tests/test2.txt") );
+        REQUIRE( reader1.SetFilterMask("whose*") );       
 
+        LogReader reader2; 
+        REQUIRE( reader2.Open("../../tests/test2.txt") );
+        REQUIRE( reader2.SetFilterMask("*whose") );
+
+        std::array< char, 100 > buffer1{};
+        REQUIRE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        
+        std::array< char, 100 > buffer2{};
+        REQUIRE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+
+        REQUIRE( buffer1 == buffer2 );
+
+        REQUIRE_FALSE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        REQUIRE_FALSE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+    }
+
+    SECTION("GetNextLine") 
+    {
+        LogReader reader1; 
+        REQUIRE( reader1.Open("../../tests/test2.txt") );
+        REQUIRE( reader1.SetFilterMask("whose+") );       
+
+        LogReader reader2; 
+        REQUIRE( reader2.Open("../../tests/test2.txt") );
+        REQUIRE( reader2.SetFilterMask("+whose") );
+
+        std::array< char, 100 > buffer1{};
+        REQUIRE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        
+        std::array< char, 100 > buffer2{};
+        REQUIRE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+
+        REQUIRE( buffer1 == buffer2 );
+
+        REQUIRE_FALSE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        REQUIRE_FALSE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+    }
+
+    SECTION("GetNextLine") 
+    {
+        LogReader reader1; 
+        REQUIRE( reader1.Open("../../tests/test2.txt") );
+        REQUIRE( reader1.SetFilterMask("Misshapen*") );       
+
+        LogReader reader2; 
+        REQUIRE( reader2.Open("../../tests/test2.txt") );
+        REQUIRE( reader2.SetFilterMask("*Misshapen") );
+
+        LogReader reader3; 
+        REQUIRE( reader3.Open("../../tests/test2.txt") );
+        REQUIRE( reader3.SetFilterMask("*Misshapen*") );
+
+        std::array< char, 100 > buffer1{};
+        REQUIRE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        
+        std::array< char, 100 > buffer2{};
+        REQUIRE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+
+        std::array< char, 100 > buffer3{};
+        REQUIRE( reader3.GetNextLine(buffer3.data(), buffer3.size()) );
+
+        REQUIRE( buffer1 == buffer2 );
+        REQUIRE( buffer2 == buffer3 );
+
+        REQUIRE_FALSE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        REQUIRE_FALSE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+        REQUIRE_FALSE( reader3.GetNextLine(buffer3.data(), buffer3.size()) );
+    }
+
+    SECTION("GetNextLine") 
+    {
+        LogReader reader1; 
+        REQUIRE( reader1.Open("../../tests/test2.txt") );
+        REQUIRE( reader1.SetFilterMask("Misshapen+") );       
+
+        LogReader reader2; 
+        REQUIRE( reader2.Open("../../tests/test2.txt") );
+        REQUIRE( reader2.SetFilterMask("+Misshapen") );
+
+        std::array< char, 100 > buffer1{};
+        REQUIRE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        
+        std::array< char, 100 > buffer2{};
+        REQUIRE_FALSE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+
+        REQUIRE_FALSE( buffer1 == buffer2 );
+
+        REQUIRE_FALSE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+        REQUIRE_FALSE( reader2.GetNextLine(buffer2.data(), buffer2.size()) );
+    }
+
+    SECTION("GetNextLine") 
+    {
+        LogReader reader1; 
+        REQUIRE( reader1.Open("../../tests/test2.txt") );
+        REQUIRE( reader1.SetFilterMask("Mi??hapen") );   
+
+        std::array< char, 100 > buffer1{};
+        REQUIRE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+    
+        REQUIRE( std::string(buffer1.data()) == "Misshapen chaos of well-seeming forms!" );
+        REQUIRE_FALSE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+    }
+
+    SECTION("GetNextLine") 
+    {
+        LogReader reader1; 
+        REQUIRE( reader1.Open("../../tests/test2.txt") );
+        REQUIRE( reader1.SetFilterMask("Mi?????en") );   
+
+        std::array< char, 100 > buffer1{};
+        REQUIRE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
+    
+        REQUIRE( std::string(buffer1.data()) == "Misshapen chaos of well-seeming forms!" );
+        REQUIRE_FALSE( reader1.GetNextLine(buffer1.data(), buffer1.size()) );
     }
 }

@@ -35,19 +35,19 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
 endif()
 
-add_executable(matcher_test tests/matcher_tests.cpp src/match_rules.cpp)
+add_executable(matcher_test tests/matcher_tests.cpp src/rules.cpp)
 target_include_directories(matcher_test PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(matcher_test PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
-add_executable(log_reader_test tests/log_reader_tests.cpp src/match_rules.cpp src/matcher.cpp src/log_reader.cpp)
+add_executable(log_reader_test tests/log_reader_tests.cpp src/rules.cpp src/matcher.cpp src/log_reader.cpp)
 target_include_directories(log_reader_test PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(log_reader_test PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
-add_executable(main src/main.cpp src/log_reader.cpp src/matcher.cpp src/match_rules.cpp)
+add_executable(main src/main.cpp src/log_reader.cpp src/matcher.cpp src/rules.cpp)
 target_include_directories(main PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(main PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
-add_executable(operator_plus example/operator_plus.cpp src/log_reader.cpp src/matcher.cpp src/match_rules.cpp)
+add_executable(operator_plus example/operator_plus.cpp src/log_reader.cpp src/matcher.cpp src/rules.cpp)
 target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 

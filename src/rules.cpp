@@ -1,18 +1,11 @@
 #include <numeric>
 #include <iostream>
 #include <algorithm>
-#include "match_rules.hpp"
+#include "rules.hpp"
 
 using namespace std;
 
-using state_t = MatchRules::state_t;
-
-state_t MatchRules::next( const state_t state )
-{
-    return state + 1;
-}
-
-char MatchRules::ImplDetails::ToRule(const char ch) const {
+char Rules::ImplDetails::ToRule(const char ch) const {
 
     const auto iter = parsing_rules.find(ch);
     if( iter != std::end(parsing_rules) )
@@ -24,13 +17,14 @@ char MatchRules::ImplDetails::ToRule(const char ch) const {
     return '@';
 }
 
-uint64_t MatchRules::ImplDetails::MinimumNumberExpectedCharacters( const char ch ) const 
+uint64_t Rules::ImplDetails::MinimumNumberExpectedCharacters( const char ch ) const 
 {
     const auto iter = parsing_rules.find( ToRule( ch ) );
 
     return iter == std::end(parsing_rules) ? 0 : iter->second.min_expected_matched_characters;
 }
-uint64_t MatchRules::ImplDetails::CountNumberOfOperators( const string & pattern ) const {
+
+uint64_t Rules::ImplDetails::CountNumberOfOperators( const string & pattern ) const {
 
     return std::count_if( std::begin(pattern), std::end(pattern),
         [&](const char ch) 
@@ -39,37 +33,37 @@ uint64_t MatchRules::ImplDetails::CountNumberOfOperators( const string & pattern
         });
 }
 
-MatchRules::MatchRules()
+Rules::Rules()
 {
-    AddNewRule(RuleDetails{ '?', 1, 
+    AddNewRule(Rule{ '?', 1, 
         [](const char input, const PatternStates& states ) 
         {  
-                //std::cout << "Rule: ?" << std::endl;
+            //std::cout << "Rule: ?" << std::endl;
 
-                return std::vector<State>{Next};
+            return std::vector{Event::Move};
         } } );
 
-    AddNewRule(RuleDetails{ '*', 0, 
+    AddNewRule(Rule{ '*', 0, 
         [](const char input, const PatternStates& states ) 
         {
-            return std::vector<State>{Current};
+            return std::vector{Event::Stay};
         } } );
 
-    AddNewRule(RuleDetails{ '@', 1, 
+    AddNewRule(Rule{ '@', 1, 
         [](const char input, const PatternStates& states) 
         {
-                //std::cout << "Rule: @" << " states.pattern_symbol=" << states.pattern_symbol << std::endl;
-                
-                if( input == states.pattern_symbol )
-                {
-                    return std::vector<State>{Next};
-                }
-                
-                return std::vector<State>{DiedOut};
+            //std::cout << "Rule: @" << " states.pattern_symbol=" << states.pattern_symbol << std::endl;
+            
+            if( input == states.pattern_symbol )
+            {
+                return std::vector{Event::Move};
+            }
+            
+            return std::vector{Event::Halt};
         } } );
 }
 
-bool MatchRules::AddNewRule( MatchRules::RuleDetails && new_rule )
+bool Rules::AddNewRule( Rule && new_rule )
 {
     const auto iter = details.parsing_rules.find(new_rule.symbol);
 
@@ -86,12 +80,12 @@ bool MatchRules::AddNewRule( MatchRules::RuleDetails && new_rule )
     return true;
 }
 
-void MatchRules::DeleteRule( const char symbol )
+void Rules::DeleteRule( const char symbol )
 {
     details.parsing_rules.erase( symbol );
 }
 
-MatchRules::transition_t MatchRules::ImplDetails::GetTransitionFor( const char ch ) const
+Rule::transition_t Rules::ImplDetails::GetTransitionFor( const char ch ) const
 {
     const auto rule_key = ToRule(ch);
     
@@ -106,23 +100,23 @@ MatchRules::transition_t MatchRules::ImplDetails::GetTransitionFor( const char c
     return iter->second.func;
 }
 
-const MatchRules& MatchRules::GetInstance()
+const Rules& Rules::GetInstance()
 {
-    static MatchRules instance;
+    static Rules instance;
     return instance;
 }
 
-MatchRulesWithPlusOperator::MatchRulesWithPlusOperator()
+RulesWithPlus::RulesWithPlus()
 {
-    AddNewRule(RuleDetails{ '+', 1, 
+    AddNewRule(Rule{ '+', 1, 
         [](const char input, const PatternStates& states ) 
         {
-            return std::vector<State>{Current, Next};
+            return std::vector{Event::Stay, Event::Move};
         } } );
 }
 
-const MatchRulesWithPlusOperator& MatchRulesWithPlusOperator::GetInstance()
+const RulesWithPlus& RulesWithPlus::GetInstance()
 {
-    static MatchRulesWithPlusOperator instance;
+    static RulesWithPlus instance;
     return instance;
 }

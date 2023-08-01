@@ -17,7 +17,7 @@ bool LogReader::Open(const std::string & file_path)
     }
 
     file.open(file_path);
-
+    
     if( !file.is_open() )
     {
         std::cout << "ERROR: Error opening file: " << file_path << std::endl;
@@ -86,6 +86,12 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
         if( std::empty(line) )
         {
             continue;
+        }
+
+        size_t pos = line.find('\r');
+        if( pos != std::string::npos )
+        {
+            line.erase( pos, 1 );
         }
 
         try {

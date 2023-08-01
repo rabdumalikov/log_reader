@@ -2,7 +2,7 @@
 
 #include <string>
 #include <functional>
-#include "match_rules.hpp"
+#include "rules.hpp"
 
 bool match(const std::string & pattern, const std::string & line, 
-    const MatchRules & rules = MatchRulesWithPlusOperator::GetInstance() );
+    const Rules & rules = RulesWithPlus::GetInstance() );
