@@ -2,7 +2,7 @@
 
   
 
-Implementation for filtering out log files. 
+Application for filtering out log files. 
   
 
 # Main-Files:
