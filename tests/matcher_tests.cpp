@@ -10,37 +10,6 @@
 
 using namespace std;
 
-static auto CreateRules()
-{
-    ImplDetails details( Rule{ '@', 1, 
-        [](const char input, const PatternStates& states) 
-        {
-            return input == states.pattern_symbol  ?
-                std::vector{Event::Move} :
-                std::vector{Event::Halt};
-        } } );
-
-    details.parsing_rules['?'] = Rule{ '?', 1, 
-        [](const char input, const PatternStates& states ) 
-        {  
-            return std::vector{Event::Move};
-        } };
-
-    details.parsing_rules['*'] = Rule{ '*', 0, 
-        [](const char input, const PatternStates& states ) 
-        {
-            return std::vector{Event::Stay};
-        } };
-
-    details.parsing_rules['+'] = Rule{ '+', 1, 
-        [](const char input, const PatternStates& states ) 
-        {
-            return std::vector{Event::Stay, Event::Move};
-        } };
-
-    return details;
-}
-
 TEST_CASE( "get_next_char", "" ) 
 {
     SECTION("normal_string")
@@ -85,27 +54,27 @@ TEST_CASE( "get_next_states", "" )
     REQUIRE( *std::begin(next_states) == 0 );
 }
 
-TEST_CASE( "CountNumberOfOperators", "" ) 
+TEST_CASE( "number_of_operators", "" ) 
 {
-    const auto rules = CreateRules();
-    REQUIRE( rules.CountNumberOfOperators("*t") == 1 );
-    REQUIRE( rules.CountNumberOfOperators("+t") == 1 );
-    REQUIRE( rules.CountNumberOfOperators("?t") == 1 );
-    REQUIRE( rules.CountNumberOfOperators("*?test") == 2 );
-    REQUIRE( rules.CountNumberOfOperators("+?test") == 2 );
-    REQUIRE( rules.CountNumberOfOperators("??test") == 2 );
-    REQUIRE( rules.CountNumberOfOperators("*?+est") == 3 );
+    const auto rules = RulesWithPlus();
+    REQUIRE( number_of_operators("*t", rules) == 1 );
+    REQUIRE( number_of_operators("+t", rules) == 1 );
+    REQUIRE( number_of_operators("?t", rules) == 1 );
+    REQUIRE( number_of_operators("*?test", rules) == 2 );
+    REQUIRE( number_of_operators("+?test", rules) == 2 );
+    REQUIRE( number_of_operators("??test", rules) == 2 );
+    REQUIRE( number_of_operators("*?+est", rules) == 3 );
 }
 
-TEST_CASE( "MinMatchRequiredCharacters", "" ) 
+TEST_CASE( "min_characters_to_match", "" ) 
 {
-    const auto rules = CreateRules();
-    REQUIRE( rules.MinMatchRequiredCharacters('*') == 0 );
-    REQUIRE( rules.MinMatchRequiredCharacters('+') == 1 );
-    REQUIRE( rules.MinMatchRequiredCharacters('?') == 1 );
+    const auto rules = RulesWithPlus();
+    REQUIRE( min_characters_to_match('*', rules) == 0 );
+    REQUIRE( min_characters_to_match('+', rules) == 1 );
+    REQUIRE( min_characters_to_match('?', rules) == 1 );
     
     for( int i = 'a'; i <= 'z'; ++i )
-        REQUIRE( rules.MinMatchRequiredCharacters(static_cast<char>(i)) == 1 );
+        REQUIRE( min_characters_to_match(static_cast<char>(i), rules) == 1 );
 }
 
 TEST_CASE( "pattern_normalization", "" ) 

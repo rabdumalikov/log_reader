@@ -17,26 +17,16 @@ class Rules {
         // Create a singleton to avoid creation of many instances
         static const Rules& GetInstance();
 
-        struct ImplDetails 
-        {           
-            explicit ImplDetails( Rule && default_rule );
-
-            uint64_t MinMatchRequiredCharacters( const char ch ) const;
-            uint64_t CountNumberOfOperators( const std::string & pattern ) const;        
-            Rule::transition_t GetTransitionFor( const char ch ) const;
-        
-            std::map< char, Rule > parsing_rules;
-            const Rule default_rule;
-        };
-
     private:
-        friend bool match(const std::string & pattern, const std::string & line, const Rules & rules);
-        friend bool match_impl_NFA(const std::string & pattern, const std::string & line, const Rules & rules);
+        friend uint64_t min_characters_to_match( const char ch, const Rules & rules );
+        friend uint64_t number_of_operators( const std::string & pattern, const Rules & rules );        
+        friend Rule::transition_t get_transition( const char ch, const Rules & rules );
         
-        ImplDetails details;
+        const Rule default_rule; /// i.e. rule for all non-operators
+        std::map< char, Rule > parsing_rules;
 };
 
-
+/// Rules that include additional operator '+'
 struct RulesWithPlus : public Rules
 {
     RulesWithPlus();
@@ -44,3 +34,7 @@ struct RulesWithPlus : public Rules
     static const RulesWithPlus& GetInstance();
 };
 
+/// Helper functions
+Rule::transition_t get_transition( const char ch, const Rules & rules );
+uint64_t min_characters_to_match( const char ch, const Rules & rules );
+uint64_t number_of_operators( const std::string & pattern, const Rules & rules );        

@@ -7,7 +7,7 @@
 #include "rule.hpp"
 #include "matcher.hpp"
 
-using ImplDetails = Rules::ImplDetails;
+//using ImplDetails = Rules::ImplDetails;
 
 struct StateMachine
 {
@@ -46,7 +46,7 @@ static std::optional<char> get_next_char( const std::string & pattern, size_t in
     return pattern[next_index];
 }
 
-static StateMachine create_state_machine( const std::string & pattern, const ImplDetails & details )
+static StateMachine create_state_machine( const std::string & pattern, const Rules & rules )
 {
     const size_t max_possible_state = pattern.size();
 
@@ -60,16 +60,16 @@ static StateMachine create_state_machine( const std::string & pattern, const Imp
         const state_t current_state = i;
         const char ch = pattern[i];
         
-        std::vector transitions{ StateMachine::Transition(ch, current_state, details.GetTransitionFor(ch) ) };
+        std::vector transitions{ StateMachine::Transition(ch, current_state, get_transition(ch, rules) ) };
 
-        if( details.MinMatchRequiredCharacters( ch ) == 0 )
+        if( min_characters_to_match( ch, rules ) == 0 )
         {
             if( const auto next_char = get_next_char(pattern, i); next_char )
             {
                 const char next_ch = *next_char;
 
                 /// epsilon transition
-                auto next_rule = details.GetTransitionFor(next_ch);
+                auto next_rule = get_transition(next_ch, rules);
 
                 transitions.push_back( StateMachine::Transition(next_ch, current_state+1, std::move(next_rule) ) );
             }
@@ -137,7 +137,7 @@ static bool is_string_accepted( const T1 & accept_states, const T2 & current_sta
 
 bool match_impl_NFA(const std::string & pattern, const std::string & line, const Rules & rules)
 {
-    const auto state_machine = create_state_machine( pattern, rules.details );
+    const auto state_machine = create_state_machine( pattern, rules );
 
     /// std::set because states to explore should be unique.
     std::set< state_t > current_states{ 0 };
@@ -174,7 +174,7 @@ static std::string normalize_pattern( std::string pattern )
 
 bool match(const std::string & pattern, const std::string & line, const Rules & rules)
 {
-    if( rules.details.CountNumberOfOperators(pattern) == 0 )
+    if( number_of_operators(pattern, rules) == 0 )
     {
         return pattern == line;
     }

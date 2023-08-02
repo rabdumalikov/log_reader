@@ -13,12 +13,12 @@ TEST_CASE( "log_reader", "" )
         REQUIRE_FALSE( reader.Open("not_existing_file.txt") );
         REQUIRE_FALSE( reader.Open("") );
 
-        REQUIRE( reader.Open("../../tests/test.txt") );
+        REQUIRE( reader.Open("../../tests/test1.txt") );
     }
 
     SECTION("Close_With_Open") {
         LogReader reader;
-        REQUIRE( reader.Open("../../tests/test.txt") );
+        REQUIRE( reader.Open("../../tests/test1.txt") );
         REQUIRE_NOTHROW( reader.Close() );
     }
 
@@ -29,7 +29,7 @@ TEST_CASE( "log_reader", "" )
 
     SECTION("SetFilterMask_With_Open") {
         LogReader reader;
-        REQUIRE( reader.Open("../../tests/test.txt") );
+        REQUIRE( reader.Open("../../tests/test1.txt") );
         REQUIRE( reader.SetFilterMask("test") );
         REQUIRE( reader.SetFilterMask("") );
 
@@ -46,7 +46,7 @@ TEST_CASE( "log_reader", "" )
 
     SECTION("GetNextLine_With_Open") {
         LogReader reader;
-        REQUIRE( reader.Open("../../tests/test.txt") );
+        REQUIRE( reader.Open("../../tests/test1.txt") );
         REQUIRE( reader.SetFilterMask("test") );
         
         {
@@ -65,7 +65,7 @@ TEST_CASE( "log_reader", "" )
 
     SECTION("GetNextLine_With_Wrong_Buffer_Size") {
         LogReader reader;
-        REQUIRE( reader.Open("../../tests/test.txt") );
+        REQUIRE( reader.Open("../../tests/test1.txt") );
         REQUIRE( reader.SetFilterMask("test") );
         
         {
@@ -90,7 +90,7 @@ TEST_CASE( "log_reader", "" )
 
     SECTION("GetNextLine_Without_Mask") {
         LogReader reader;
-        REQUIRE( reader.Open("../../tests/test.txt") );        
+        REQUIRE( reader.Open("../../tests/test1.txt") );        
         {
             std::array< char, 100 > buffer{};
             
@@ -112,7 +112,7 @@ TEST_CASE( "log_reader", "" )
 
     SECTION("GetNextLine_Change_Mask_On_the_Fly") {
         LogReader reader; 
-        REQUIRE( reader.Open("../../tests/test.txt") );
+        REQUIRE( reader.Open("../../tests/test1.txt") );
         REQUIRE( reader.SetFilterMask("test?") );       
 
         for( const auto & val : { "test123"s, "123test123"s } )
