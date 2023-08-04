@@ -105,6 +105,12 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
 
                 std::copy(std::begin(line), std::end(line), buffer);
 
+                // Manually add the null-terminator at the end of the buffer
+				if( line.size() < buffer_size )
+				{
+					buffer[line.size()] = '\0';
+				}
+
                 return true;
             }
         } 

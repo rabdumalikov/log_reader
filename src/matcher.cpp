@@ -8,8 +8,6 @@
 #include "rule.hpp"
 #include "matcher.hpp"
 
-//using ImplDetails = Rules::ImplDetails;
-
 struct StateMachine
 {
     struct Transition {    
