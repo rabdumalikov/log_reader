@@ -97,13 +97,13 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
         try {
             if( match(pattern_mask, line) )
             {
-                if( line.size() + 1 /*null terminate symbol*/ > buffer_size )
+                if( line.size() > buffer_size )
                 {
                     std::cout << "ERROR: Buffer size is too small" << std::endl;
                     return false;
                 }
 
-                std::copy(std::begin(line), std::end(line) + 1 /*null terminate symbol*/, buffer);
+                std::copy(std::begin(line), std::end(line), buffer);
 
                 return true;
             }

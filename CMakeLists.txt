@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.5.1)
 
 project(logger)
 
-add_compile_options( -std=c++17 )
+set(EXECUTABLE_OUTPUT_PATH "${logger_SOURCE_DIR}/out/binaries")
+
+find_package(Git)
+message(STATUS "GIT_EXECUTABLE='${GIT_EXECUTABLE}'")
 
 IF(CMAKE_BUILD_TYPE MATCHES Debug)
     message("LOGGER Debug.build Compiler=${CMAKE_CXX_COMPILER_ID}")
@@ -13,7 +16,14 @@ ELSE()
 ENDIF()
 
 if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    add_compile_options( -stdlib=libc++ )
+    if ("${CMAKE_CXX_SIMULATE_ID}" STREQUAL "MSVC")
+        add_compile_options( /std:c++17 )
+    else()
+        add_compile_options( -std=c++17 )
+        add_compile_options( -stdlib=libc++ )
+    endif()
+elseif ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "MSVC")
+    add_compile_options( /std:c++17 )
 endif()
 
 if (CMAKE_VERSION VERSION_LESS 3.2)
@@ -31,9 +41,9 @@ download_project(PROJ                catchtest
 
 add_subdirectory(${catchtest_SOURCE_DIR} ${catchtest_BINARY_DIR})
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
-endif()
+#if (CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+#    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -stdlib=libc++ -lc++abi")
+#endif()
 
 add_executable(matcher_test tests/matcher_tests.cpp src/rules.cpp)
 target_include_directories(matcher_test PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
@@ -50,8 +60,3 @@ target_include_directories(main PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}
 add_executable(operator_plus example/operator_plus.cpp src/log_reader.cpp src/matcher.cpp src/rules.cpp)
 target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
-
-
-if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-    add_compile_options( -Winline )
-endif()

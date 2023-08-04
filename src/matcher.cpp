@@ -1,6 +1,7 @@
 #include <set>
 #include <map>
 #include <vector>
+#include <optional>
 #include <iostream>
 #include <algorithm>
 
@@ -169,7 +170,7 @@ static std::string normalize_pattern( std::string pattern )
         }
     }
 
-    return std::move( pattern );
+    return pattern;
 }
 
 bool match(const std::string & pattern, const std::string & line, const Rules & rules)

@@ -1,3 +1,6 @@
 .DS_Store
 gutenberg_combined.txt
 build/
+.vs
+out/
+output/

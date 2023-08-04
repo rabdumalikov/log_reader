@@ -1,3 +1,4 @@
+#include <array>
 #include "src/log_reader.hpp"
 
 #define CATCH_CONFIG_MAIN  // This tells Catch to provide a main() - only do this in one cpp file
@@ -12,7 +13,7 @@ TEST_CASE( "log_reader", "" )
     
         REQUIRE_FALSE( reader.Open("not_existing_file.txt") );
         REQUIRE_FALSE( reader.Open("") );
-
+        
         REQUIRE( reader.Open("../../tests/test1.txt") );
     }
 
@@ -61,7 +62,7 @@ TEST_CASE( "log_reader", "" )
             REQUIRE_FALSE( reader.GetNextLine(buffer.data(), buffer.size()) );
             REQUIRE( std::string(buffer.data()) == "" );
         }
-    }    
+    }   
 
     SECTION("GetNextLine_With_Wrong_Buffer_Size") {
         LogReader reader;
