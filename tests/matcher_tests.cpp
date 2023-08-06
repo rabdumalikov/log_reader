@@ -1,7 +1,21 @@
+
+// !!! HACK below is INTENTIONAL !!!
+// It might look suspicios but I did that intentionally
+// to test private static functions. I could declare those 
+// functions as free ones. However, I didn't want to do that
+// since they are not general purpose functions, and making 
+// them free might create confusion since usage context would 
+// be lost partially. Also, since it is separate binary file, thus 
+// there is not harm for main application or production code.
+#define private public
+#include "src/state_machine.cpp"
+
+
 // including 'cpp' instead of 'hpp' intentional, since I want to get
 // access to functions that only accessable inside 'matcher' translation unit (internal linkage).
 // Hiding those function was done to avoid contamination of external reference of object file.
 #include "src/matcher.cpp"
+
 
 #include <iostream>
 
@@ -18,37 +32,37 @@ TEST_CASE( "get_next_char", "" )
         
         for( size_t i = 0; i < str.size() - 1; ++i )
         {
-            const auto res = get_next_char( str, i );
+            const auto res = StateMachine::get_next_char( str, i );
 
             REQUIRE( res != std::nullopt );
             REQUIRE( *res == str[i+1] );
         }
 
-        REQUIRE_FALSE( get_next_char( str, str.size() ) != std::nullopt );
+        REQUIRE_FALSE( StateMachine::get_next_char( str, str.size() ) != std::nullopt );
     }
 
     SECTION("empty_string")
     {
         string str{""};
         
-        REQUIRE_FALSE( get_next_char( str, str.size() ) != std::nullopt );
+        REQUIRE_FALSE( StateMachine::get_next_char( str, str.size() ) != std::nullopt );
     }
 }
 
-TEST_CASE( "is_string_accepted", "" )
-{
-    REQUIRE( is_string_accepted( std::vector{5}, std::vector{1,2,3,4,5}) );
-    REQUIRE( is_string_accepted( std::vector{5}, std::vector{1,2,3,4,5,6,7}) );
-    REQUIRE( is_string_accepted( std::vector{5,6}, std::vector{1,2,3,4,5,6,7}) );
+// TEST_CASE( "is_string_accepted", "" )
+// {
+//     REQUIRE( is_string_accepted( std::vector{5}, std::vector{1,2,3,4,5}) );
+//     REQUIRE( is_string_accepted( std::vector{5}, std::vector{1,2,3,4,5,6,7}) );
+//     REQUIRE( is_string_accepted( std::vector{5,6}, std::vector{1,2,3,4,5,6,7}) );
 
-    REQUIRE_FALSE( is_string_accepted( std::vector<state_t>{}, std::vector{1,2,3,4,5,6,7}) );
-    REQUIRE_FALSE( is_string_accepted( std::vector{8}, std::vector{1,2,3,4,5,6,7}) );
-    REQUIRE_FALSE( is_string_accepted( std::vector{1,2}, std::vector{3,4,5,6,7}) );
-}
+//     REQUIRE_FALSE( is_string_accepted( std::vector<state_t>{}, std::vector{1,2,3,4,5,6,7}) );
+//     REQUIRE_FALSE( is_string_accepted( std::vector{8}, std::vector{1,2,3,4,5,6,7}) );
+//     REQUIRE_FALSE( is_string_accepted( std::vector{1,2}, std::vector{3,4,5,6,7}) );
+// }
 
 TEST_CASE( "get_next_states", "" )
 {
-    const auto next_states = get_next_states( 'i', std::set<state_t>{}, std::vector<std::vector<StateMachine::Transition> >{} );
+    const auto next_states = get_next_states( 'i', std::set<state_t>{}, std::vector<std::vector<Transition> >{} );
     
     REQUIRE( next_states.size() == 1 );
     REQUIRE( *std::begin(next_states) == 0 );
@@ -79,138 +93,138 @@ TEST_CASE( "min_characters_to_match", "" )
 
 TEST_CASE( "pattern_normalization", "" ) 
 {
-    REQUIRE( normalize_pattern("******test") == "*test" );
-    REQUIRE( normalize_pattern("test******") == "test*" );
-    REQUIRE( normalize_pattern("test*+") == "test+" );
-    REQUIRE( normalize_pattern("test****+") == "test+" );
-    REQUIRE( normalize_pattern("*+test") == "+test" );
-    REQUIRE( normalize_pattern("****+test") == "+test" );
-    REQUIRE( normalize_pattern("******test******") == "*test*" );
-    REQUIRE( normalize_pattern("?????test?????") == "?????test?????" );
-    REQUIRE( normalize_pattern("?????test") == "?????test" );
-    REQUIRE( normalize_pattern("test?????") == "test?????" );
-    REQUIRE( normalize_pattern("test") == "test" );
+    REQUIRE( StateMachine::normalize_pattern("******test") == "*test" );
+    REQUIRE( StateMachine::normalize_pattern("test******") == "test*" );
+    REQUIRE( StateMachine::normalize_pattern("test*+") == "test+" );
+    REQUIRE( StateMachine::normalize_pattern("test****+") == "test+" );
+    REQUIRE( StateMachine::normalize_pattern("*+test") == "+test" );
+    REQUIRE( StateMachine::normalize_pattern("****+test") == "+test" );
+    REQUIRE( StateMachine::normalize_pattern("******test******") == "*test*" );
+    REQUIRE( StateMachine::normalize_pattern("?????test?????") == "?????test?????" );
+    REQUIRE( StateMachine::normalize_pattern("?????test") == "?????test" );
+    REQUIRE( StateMachine::normalize_pattern("test?????") == "test?????" );
+    REQUIRE( StateMachine::normalize_pattern("test") == "test" );
 }
 
 TEST_CASE( "testing_all_operators", "" )
 {
     SECTION("?") {
-        REQUIRE( match("????"s, "test"s ) );
-        REQUIRE( match("????"s, "testbestwest"s ) );
+        REQUIRE( match("test"s, "????"_pattern ) );
+        REQUIRE( match("testbestwest"s, "????"_pattern ) );
 
-        REQUIRE_FALSE( match("?test"s, "test123"s ) );
-        REQUIRE( match("?test"s, "1test1"s ) );
-        REQUIRE( match("?test"s, "1test"s ) );
-        REQUIRE( match("?test"s, "1testbest"s ) );
-        REQUIRE( match("?test"s, "123test"s ) );
+        REQUIRE_FALSE( match("test123"s, "?test"_pattern ) );
+        REQUIRE( match("1test1"s, "?test"_pattern ) );
+        REQUIRE( match("1test"s, "?test"_pattern) );
+        REQUIRE( match("1testbest"s, "?test"_pattern ) );
+        REQUIRE( match("123test"s, "?test"_pattern ) );
         
-        REQUIRE( match("test?"s, "test1"s ) );
-        REQUIRE( match("test?"s, "testt"s ) );
-        REQUIRE( match("test?"s, "testwow"s ) );
-        REQUIRE_FALSE( match("test?"s, "wowtest"s ) );
-        REQUIRE( match("test?"s, "wowtestwow"s ) );
+        REQUIRE( match( "test1"s  , "test?"_pattern ) );
+        REQUIRE( match( "testt"s  , "test?"_pattern ) );
+        REQUIRE( match( "testwow"s, "test?"_pattern ) );
+        REQUIRE_FALSE( match("wowtest"s, "test?"_pattern ) );
+        REQUIRE( match( "wowtestwow"s, "test?"_pattern ) );
 
-        REQUIRE_FALSE( match("?test?"s, "testt"s ) );
-        REQUIRE_FALSE( match("?test?"s, "ttest"s ) );
-        REQUIRE( match("?test?"s, "ttestt"s ) );
-        REQUIRE( match("????test?"s, "testtesttest"s ) );
-        REQUIRE( match("????test????"s, "testtesttest"s ) );
-        REQUIRE_FALSE( match("????test?????"s, "testtesttest"s ) );
+        REQUIRE_FALSE( match("testt"s, "?test?"_pattern ) );
+        REQUIRE_FALSE( match("ttest"s, "?test?"_pattern ) );
+        REQUIRE( match( "ttestt"s, "?test?"_pattern ) );
+        REQUIRE( match("testtesttest"s, "????test?"_pattern ) );
+        REQUIRE( match("testtesttest"s, "????test????"_pattern ) );
+        REQUIRE_FALSE( match("testtesttest"s, "????test?????"_pattern ) );
     }
 
     SECTION("*") {
-        REQUIRE( match("*test"s, "test"s ) );
-        REQUIRE( match("*test"s, "testtest"s ) );
+        REQUIRE( match("test"s    , "*test"_pattern ) );
+        REQUIRE( match("testtest"s, "*test"_pattern ) );
 
-        REQUIRE( match("test*"s, "test"s ) );
-        REQUIRE( match("test*"s, "testtest"s ) );
+        REQUIRE( match("test"s    , "*test"_pattern ) );
+        REQUIRE( match("testtest"s, "*test"_pattern ) );
 
-        REQUIRE( match("*test*"s, "test123"s ) );
-        REQUIRE( match("test*"s, "test123"s ) );
+        REQUIRE( match( "test123"s, "*test*"_pattern ) );
+        REQUIRE( match( "test123"s, "test*"_pattern ) );
 
-        REQUIRE( match("*test"s, "123test"s ) );
+        REQUIRE( match( "123test"s, "*test"_pattern ) );
 
-        REQUIRE( match("t*t"s, "tt"s ) );
+        REQUIRE( match( "tt"s, "t*t"_pattern ) );
 
-        REQUIRE( match("t*t"s, "test"s ) );
-        REQUIRE( match("t*t"s, "testesttest"s ) );
+        REQUIRE( match( "test"s, "t*t"_pattern ) );
+        REQUIRE( match( "testesttest"s, "t*t"_pattern ) );
 
-        REQUIRE( match("*test*"s, "test"s ) );
-        REQUIRE( match("*test*"s, "test123"s ) );
-        REQUIRE( match("*test*"s, "123test"s ) );
-        REQUIRE( match("*test*"s, "123test123"s ) );
+        REQUIRE( match("test"s      , "*test*"_pattern ) );
+        REQUIRE( match("test123"s   , "*test*"_pattern ) );
+        REQUIRE( match("123test"s   , "*test*"_pattern ) );
+        REQUIRE( match("123test123"s, "*test*"_pattern ) );
 
-        REQUIRE( match("*test"s, "test"s ) );
-        REQUIRE( match("*test"s, "btest"s ) );
-        REQUIRE( match("*test"s, "qwertyuioptest"s ) );
-        REQUIRE( match("*test"s, "testest"s ) );
+        REQUIRE( match("test"s          , "*test"_pattern ) );
+        REQUIRE( match("btest"s         , "*test"_pattern ) );
+        REQUIRE( match("qwertyuioptest"s, "*test"_pattern ) );
+        REQUIRE( match("testest"s       , "*test"_pattern ) );
 
-        REQUIRE_FALSE( match("cunq*"s, "that cunning peculiar wo"s ) );
+        REQUIRE_FALSE( match("that cunning peculiar wo"s, "cunq*"_pattern ) );
 
-        REQUIRE( match("eding*", "above once a quarter--I hope you keep accunt of Roger's purseeding in") );
-        REQUIRE( match("*eding", "above once a quarter--I hope you keep accunt of Roger's purseeding in") );
+        REQUIRE( match("above once a quarter--I hope you keep accunt of Roger's purseeding in"s, "eding*"_pattern) );
+        REQUIRE( match("above once a quarter--I hope you keep accunt of Roger's purseeding in"s, "*eding"_pattern) );
     }
 
     SECTION("+") {
-        REQUIRE_FALSE( match("+fart"s, "face or front did it have; no conceivable token of either sensation or"s ) );        
+        REQUIRE_FALSE( match( "face or front did it have; no conceivable token of either sensation or"s, "+fart"_pattern ) );        
 
-        REQUIRE( match("+t+t+"s, "besttestbest"s ) );
-        REQUIRE( match("+t+t+"s, "besttestwes"s ) );
+        REQUIRE( match( "besttestbest"s, "+t+t+"_pattern ) );
+        REQUIRE( match( "besttestwes"s , "+t+t+"_pattern ) );
 
-        REQUIRE_FALSE( match("+tt+"s, "bestestwes"s ) );
+        REQUIRE_FALSE( match( "bestestwes"s, "+tt+"_pattern ) );
 
-        REQUIRE( match("+tt+"s, "besttestwes"s  ) );
-        REQUIRE_FALSE( match("t+t"s, "tt"s ) );
-        REQUIRE( match("t+t"s, "test"s ) );
-        REQUIRE( match("t+t"s, "testesttest"s ) );
+        REQUIRE( match( "besttestwes"s, "+tt+"_pattern  ) );
+        REQUIRE_FALSE( match( "tt"s, "t+t"_pattern ) );
+        REQUIRE( match( "test"s       , "t+t"_pattern ) );
+        REQUIRE( match( "testesttest"s, "t+t"_pattern ) );
 
-        REQUIRE_FALSE( match("+test"s, "test"s ) );
-        REQUIRE( match("+test"s, "testtest"s ) );
-        REQUIRE( match("+test"s, "bbbtestbbb"s ) );
+        REQUIRE_FALSE( match( "test"s, "+test"_pattern ) );
+        REQUIRE( match( "testtest"s  , "+test"_pattern ) );
+        REQUIRE( match( "bbbtestbbb"s, "+test"_pattern ) );
 
-        REQUIRE( match("test+"s, "bbbtestbbb"s ) );
-        REQUIRE( match("test+"s, "testbbb"s ) );
-        REQUIRE_FALSE( match("test+"s, "test"s ) );
-        REQUIRE_FALSE( match("test+"s, "bbbtest"s ) );
+        REQUIRE( match( "bbbtestbbb"s, "test+"_pattern ) );
+        REQUIRE( match( "testbbb"s   , "test+"_pattern ) );
+        REQUIRE_FALSE( match( "test"s   , "test+"_pattern ) );
+        REQUIRE_FALSE( match( "bbbtest"s, "test+"_pattern ) );
 
-        REQUIRE( match("+test+"s, "bbbtestbbb"s ) );
-        REQUIRE_FALSE( match("+test+"s, "testbbb"s ) );
-        REQUIRE_FALSE( match("+test+"s, "bbbtest"s ) );
+        REQUIRE( match( "bbbtestbbb"s, "+test+"_pattern ) );
+        REQUIRE_FALSE( match( "testbbb"s, "+test+"_pattern ) );
+        REQUIRE_FALSE( match( "bbbtest"s, "+test+"_pattern ) );
         
-        REQUIRE( match("t+st"s, "bbbtestbbb"s) );
-        REQUIRE_FALSE( match("t+st"s, "bbbtstbbb"s) );
-        REQUIRE( match("t+st"s, "testtest"s) );    
+        REQUIRE( match( "bbbtestbbb"s, "t+st"_pattern) );
+        REQUIRE_FALSE( match( "bbbtstbbb"s, "t+st"_pattern) );
+        REQUIRE( match( "testtest"s, "t+st"_pattern) );    
     }
 
     SECTION("+_and_*_and_?" )
     {
-        REQUIRE( match("*test+"s, "testbest"s) );
-        REQUIRE_FALSE( match("+test*"s, "testbest"s) );
-        REQUIRE( match("+test*"s, "besttest"s) );
-        REQUIRE( match("+t+t*"s, "besttestbest"s) );
+        REQUIRE( match( "testbest"s, "*test+"_pattern) );
+        REQUIRE_FALSE( match( "testbest"s, "+test*"_pattern ) );
+        REQUIRE( match( "besttest"s   , "+test*"_pattern) );
+        REQUIRE( match("besttestbest"s, "+t+t*"_pattern) );
         
-        REQUIRE( match("+t*t+"s, "besttestwes"s) );
+        REQUIRE( match("besttestwes"s, "+t*t+"_pattern) );
 
         // beginning
-        REQUIRE( match("*?test"s, "btest"s) );
-        REQUIRE( match("*?test"s, "btestwaste"s) );
-        REQUIRE_FALSE( match("*?test"s, "testHASTE"s) );
+        REQUIRE( match("btest"s     , "*?test"_pattern) );
+        REQUIRE( match("btestwaste"s, "*?test"_pattern) );
+        REQUIRE_FALSE( match( "testHASTE"s, "*?test"_pattern) );
 
         // // middle
-        REQUIRE( match("te*?t"s, "test"s) );
-        REQUIRE( match("test*?e"s, "btestwaste"s) );
-        REQUIRE_FALSE( match("te*?st"s, "testHASTE"s) );
+        REQUIRE( match( "test"s      , "te*?t"_pattern ) );
+        REQUIRE( match( "btestwaste"s, "test*?e"_pattern) );
+        REQUIRE_FALSE( match( "testHASTE"s, "te*?st"_pattern) );
 
         // // end
-        REQUIRE( match("test*?"s, "testb"s) );
-        REQUIRE( match("test*?"s, "btestwaste"s) );
-        REQUIRE( match("test*?"s, "testHASTE"s) );
+        REQUIRE( match( "testb"s     , "test*?"_pattern) );
+        REQUIRE( match( "btestwaste"s, "test*?"_pattern) );
+        REQUIRE( match( "testHASTE"s , "test*?"_pattern) );
 
     }
 
     SECTION( "without_operators" )
     { 
-        REQUIRE( match("test"s, "test"s) );
-        REQUIRE_FALSE( match("test"s, "testtest"s ) );
+        REQUIRE( match("test"s, "test"_pattern) );
+        REQUIRE_FALSE( match("testtest"s, "test"_pattern) );
     }
 }

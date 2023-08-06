@@ -42,14 +42,14 @@ if (Git_FOUND)
     target_include_directories(matcher_test PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
     target_include_directories(matcher_test PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 
-    add_executable(log_reader_test tests/log_reader_tests.cpp src/rules.cpp src/matcher.cpp src/log_reader.cpp)
+    add_executable(log_reader_test tests/log_reader_tests.cpp src/rules.cpp src/matcher.cpp src/log_reader.cpp src/state_machine.cpp)
     target_include_directories(log_reader_test PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
     target_include_directories(log_reader_test PUBLIC $<BUILD_INTERFACE:${catchtest_SOURCE_DIR}/single_include/>)
 endif()
 
 
-add_executable(main src/main.cpp src/log_reader.cpp src/matcher.cpp src/rules.cpp)
+add_executable(main src/main.cpp src/log_reader.cpp src/matcher.cpp src/rules.cpp src/state_machine.cpp)
 target_include_directories(main PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)
 
-add_executable(operator_plus example/operator_plus.cpp src/log_reader.cpp src/matcher.cpp src/rules.cpp)
+add_executable(operator_plus example/operator_plus.cpp src/log_reader.cpp src/matcher.cpp src/rules.cpp src/state_machine.cpp)
 target_include_directories(operator_plus PUBLIC $<BUILD_INTERFACE:${logger_SOURCE_DIR}>)

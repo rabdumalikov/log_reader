@@ -2,6 +2,9 @@
 
 #include <string>
 #include <fstream>
+#include <optional>
+
+#include "state_machine.hpp"
 
 class LogReader final
 {
@@ -25,4 +28,5 @@ public:
 private:
     std::ifstream file; 
     std::string pattern_mask;
+    std::optional<StateMachine> state_machine;
 };

@@ -1,11 +1,13 @@
+  
 
 ## Overview:
 
   
 
   
-
 Application for filtering out log files.
+
+  
 
   
 
@@ -13,23 +15,38 @@ Application for filtering out log files.
 
   
 
--  `src/log_reader.hpp` - LogReader implementation
-
--  `src/matching.hpp` - engine that search for matches using provided set of rules like `*`, and `?`.
-
--  `src/rules.hpp` - abstraction for controlling and introducing new rules
-
+  
 -  `src/main.cpp` - application that accept two arguments and filter out logs based on provided pattern.
 
+-  `src/log_reader.hpp` - LogReader implementation
+
+-  `src/matching.hpp` - engine that search for matches using provided set of rules (like `*`, and `?`).
+
+  
+
+-  `src/rules.hpp` - abstraction for controlling and introducing new rules (example can be found here `example/operator_plus.cpp`).
+
+-  `src/state_machine.cpp` - state machine or **Thompson's construction** that based on the given pattern creates set of transtions, and accepting states. 
+
+  
+
 # Unit-Tests:
+
+  
 
 I have used [Catch2](https://github.com/catchorg/Catch2) as a unit test library.
 
   
 
+  
+
 -  `tests/matcher_tests.cpp` - unit tests for _matching.hpp_.
 
+  
+
 -  `tests/log_reader_tests.cpp` - unit tests for _log_reader.hpp_.
+
+  
 
   
 
@@ -37,15 +54,17 @@ I have used [Catch2](https://github.com/catchorg/Catch2) as a unit test library.
 
   
 
+  
+
 -  `example/operator_plus.cpp` - contain an example of how a new rule can be introduced. To demonstrate it I have implemented operator `+`.
 
   
-  
-  
-  
+
   
 
 _______________
+
+  
 
   
 
@@ -55,11 +74,17 @@ _______________
 
   
 
+  
+
 C++17
 
   
 
+  
+
 _______________
+
+  
 
   
 
@@ -69,13 +94,21 @@ _______________
 
   
 
+  
+
 I personally tested on following:
+
+  
 
   
 
 -  **clang++\-16** (or later)
 
+  
+
 -  **Visual Studio 2017** (or later)
+
+  
 
   
 
@@ -83,16 +116,29 @@ I personally tested on following:
 
   
 
+  
+
 - Windows:
-	1) **CLONE**: this repository
-	2) **OPEN**: In Visual Studio 2017 as follow: `File` &#8594; `Open` &#8594; `CMake`
-	3) **BUILD**: `CMake` &#8594; `Build All`
-	4) **RUN**: `.\out\binaries\main.exe "sometext.txt" "*pattern*"`
+
+1) **CLONE**: this repository
+
+2) **OPEN**: In Visual Studio 2017 as follow: `File`  &#8594;  `Open`  &#8594;  `CMake`
+
+3) **BUILD**: `CMake`  &#8594;  `Build All`
+
+4) **RUN**: `.\out\binaries\main.exe "sometext.txt" "*pattern*"`
+
+  
 
 - Linux/Macos:
-	1) **CLONE**: this repository
-	2) **BUILD**: `./build.sh` `<compiler_name>`
-	3) **RUN**: `./build/debug/main "sometext.txt" "*pattern*"`
+
+1) **CLONE**: this repository
+
+2) **BUILD**: `./build.sh`  `<compiler_name>`
+
+3) **RUN**: `./build/debug/main "sometext.txt" "*pattern*"`
+
+  
 
   
 
@@ -100,11 +146,17 @@ _______________
 
   
 
+  
+
 ## License:
 
   
 
+  
+
 Boost Software License( Version 1.0 )
+
+  
 
   
 

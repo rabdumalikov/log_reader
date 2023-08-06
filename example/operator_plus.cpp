@@ -30,9 +30,9 @@ int main()
     rules.AddNewRule( Rule{ '+', 1, PlusOperator() } );
 
     // Now we could use new set of rules inside match function.
-    const bool match_result_beg = match("+test"s, "bbbtestbbb"s, rules );
-    const bool match_result_mid = match(  "t+t"s, "bbbtestbbb"s, rules );
-    const bool match_result_end = match("test+"s, "bbbtestbbb"s, rules );
+    const bool match_result_beg = match( "bbbtestbbb"s, "+test"_pattern, rules );
+    const bool match_result_mid = match( "bbbtestbbb"s,   "t+t"_pattern, rules );
+    const bool match_result_end = match( "bbbtestbbb"s, "test+"_pattern, rules );
 
     cout << "Match('+test', 'bbbtestbbb') => " << std::boolalpha << match_result_beg << endl;
     cout << "Match(  't+t', 'bbbtestbbb') => " << std::boolalpha << match_result_mid << endl;

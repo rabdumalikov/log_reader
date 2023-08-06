@@ -43,6 +43,8 @@ bool LogReader::SetFilterMask(const char* mask)
     
     pattern_mask = mask;
 
+    state_machine = StateMachine(pattern_mask);
+
     if( file.is_open() )
     {
         // reset file
@@ -61,7 +63,7 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
         return false;
     }
 
-    if( std::empty(pattern_mask) )
+    if( std::empty(pattern_mask) || state_machine == std::nullopt )
     {
         std::cout << "ERROR: Empty pattern mask" << std::endl;
         return false;
@@ -95,7 +97,7 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
         }
 
         try {
-            if( match(pattern_mask, line) )
+            if( match(line, *state_machine) )
             {
                 if( line.size() > buffer_size )
                 {
