@@ -1,3 +1,5 @@
+#include <algorithm>
+
 #include "state_machine.hpp"
 
 

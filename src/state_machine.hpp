@@ -2,6 +2,7 @@
 
 #include <set>
 #include <string>
+#include <optional>
 
 #include "rules.hpp"
 
