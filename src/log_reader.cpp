@@ -90,6 +90,7 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
             continue;
         }
 
+        // erase '\r' from text
         size_t pos = line.find('\r');
         if( pos != std::string::npos )
         {
@@ -99,7 +100,9 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
         try {
             if( match(line, *state_machine) )
             {
-                if( line.size() > buffer_size )
+                constexpr size_t null_terminate_symbol = 1;
+
+                if( line.size() + null_terminate_symbol > buffer_size )
                 {
                     std::cout << "ERROR: Buffer size is too small" << std::endl;
                     return false;
@@ -108,10 +111,7 @@ bool LogReader::GetNextLine(char* buffer, const int buffer_size)
                 std::copy(std::begin(line), std::end(line), buffer);
 
                 // Manually add the null-terminator at the end of the buffer
-				if( line.size() < buffer_size )
-				{
-					buffer[line.size()] = '\0';
-				}
+                buffer[line.size()] = '\0';
 
                 return true;
             }
